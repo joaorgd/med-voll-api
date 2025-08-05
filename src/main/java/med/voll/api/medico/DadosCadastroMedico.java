@@ -12,6 +12,8 @@ public record DadosCadastroMedico(
         String nome,
         @NotBlank
         String email,
+        @NotBlank
+        String telefone,
         @NotNull // Verifica se o campo não é nulo.
         @Pattern(regexp = "\\d{4,6}")
         String crm,
