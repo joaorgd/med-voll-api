@@ -1,7 +1,6 @@
 package med.voll.api.medico;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,7 +29,12 @@ public class Medico {
     @Embedded
     private Endereco endereco;
 
+    // 1. ADICIONE O ATRIBUTO 'ATIVO'
+    private boolean ativo;
+
     public Medico(DadosCadastroMedico dados) {
+        // 2. INICIALIZE O ATRIBUTO COMO 'TRUE' NO CONSTRUTOR
+        this.ativo = true;
         this.nome = dados.nome();
         this.email = dados.email();
         this.telefone = dados.telefone();
@@ -39,7 +43,7 @@ public class Medico {
         this.endereco = new Endereco(dados.endereco());
     }
 
-    public void atualizarInformacoes(@Valid DadosAtualizacaoMedico dados) {
+    public void atualizarInformacoes(DadosAtualizacaoMedico dados) {
         if (dados.nome() != null) {
             this.nome = dados.nome();
         }
@@ -49,5 +53,9 @@ public class Medico {
         if (dados.endereco() != null) {
             this.endereco.atualizarInformacoes(dados.endereco());
         }
+    }
+
+    public void excluir() {
+        this.ativo = false;
     }
 }
