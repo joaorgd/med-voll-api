@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 public class Consulta {
 
+    private LocalDateTime data;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +32,17 @@ public class Consulta {
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    private LocalDateTime data;
+    @Enumerated(EnumType.STRING)
+    private MotivoCancelamento motivoCancelamento;
 
+    public Consulta(Long id, Medico medico, Paciente paciente, LocalDateTime data) {
+        this.id = id;
+        this.medico = medico;
+        this.paciente = paciente;
+        this.data = data;
+    }
+
+    public void cancelar(MotivoCancelamento motivo) {
+        this.motivoCancelamento = motivo;
+    }
 }

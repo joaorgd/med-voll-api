@@ -1,5 +1,6 @@
 package med.voll.api.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import med.voll.api.domain.medico.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/medicos")
+@SecurityRequirement(name = "bearer-key")
 public class MedicoController {
 
     @Autowired
@@ -19,7 +21,6 @@ public class MedicoController {
 
     @PostMapping
     @Transactional
-    // Boa prática: Especificar o tipo de dado no body
     public ResponseEntity<DadosDetalhamentoMedico> cadastrar(@RequestBody @Valid DadosCadastroMedico dados, UriComponentsBuilder uriBuilder) {
         var medico = new Medico(dados);
         repository.save(medico);
@@ -30,17 +31,17 @@ public class MedicoController {
     }
 
     @GetMapping
-    // CORREÇÃO: Removido o espaço extra
     public ResponseEntity<Page<DadosListagemMedico>> listar(Pageable paginacao) {
         var page = repository.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);
         return ResponseEntity.ok(page);
     }
 
-    @PutMapping
+    // ########## CORREÇÃO APLICADA AQUI ##########
+    @PutMapping("/{id}") // 1. Identifica o recurso na URL
     @Transactional
-    // Boa prática: Especificar o tipo
-    public ResponseEntity<DadosDetalhamentoMedico> atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados){
-        var medico = repository.getReferenceById(dados.id());
+    public ResponseEntity<DadosDetalhamentoMedico> atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoMedico dados){
+        // 2. Carrega o médico pelo ID da URL
+        var medico = repository.getReferenceById(id);
         medico.atualizarInformacoes(dados);
 
         return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));
@@ -48,7 +49,6 @@ public class MedicoController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    // Boa prática: Usar <Void> para respostas sem corpo
     public ResponseEntity<Void> excluir(@PathVariable Long id){
         var medico = repository.getReferenceById(id);
         medico.excluir();
@@ -57,7 +57,6 @@ public class MedicoController {
     }
 
     @GetMapping("/{id}")
-    // Boa prática: Especificar o tipo
     public ResponseEntity<DadosDetalhamentoMedico> detalhar(@PathVariable Long id){
         var medico = repository.getReferenceById(id);
         return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));
